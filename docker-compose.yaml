@@ -29,8 +29,8 @@
       NEXT_PUBLIC_UPLOAD_DIRECTORY: '/uploads'
       X_API_KEY: ''
       OPENAI_API_KEY: ''
-      API_LIMIT: 30
-      NX_ADD_PLUGINS: false
+      API_LIMIT: '30'
+      NX_ADD_PLUGINS: 'false'
     volumes:
       - postiz-config:/config/
       - postiz-uploads:/uploads/
@@ -43,6 +43,8 @@
       postiz-postgres:
         condition: service_healthy
       postiz-redis:
+        condition: service_healthy
+      temporal:
         condition: service_healthy
 
   postiz-postgres:
@@ -96,6 +98,11 @@
       - POSTGRES_SEEDS=temporal-postgresql
     networks:
       - temporal-network
+    healthcheck:
+      test: ["CMD", "temporal", "operator", "cluster", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   temporal-ui:
     container_name: temporal-ui
